@@ -38,37 +38,35 @@ class PayzeWebhookAPIView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = PayzeWebhookSerializer(data=request.data)
 
-        if serializer.is_valid():
-            validated_data = serializer.validated_data
-            payment_data = get_payment_data(request.data)
-            payment_status = validated_data["PaymentStatus"]
+        serializer.is_valid(raise_exception=True)
+        validated_data = serializer.validated_data
+        payment_data = get_payment_data(request.data)
+        payment_status = validated_data["PaymentStatus"]
 
-            order_id = validated_data["Metadata"]["Order"]["OrderId"]
-            subscription = Subscription.objects.filter(id=order_id).first()
+        order_id = validated_data["Metadata"]["Order"]["OrderId"]
+        subscription = Subscription.objects.filter(id=order_id).first()
 
-            if not subscription:
-                return
+        if not subscription:
+            return
 
-            try:
-                with transaction.atomic():
-                    if payment_status == "Captured":
-                        plan_id = payment_data.pop("plan_id")
-                        plan = Plan.objects.get(id=plan_id)
-                        Subscription.objects.filter(user=subscription.user).update(
-                            is_active=True,
-                            plan_id=plan_id,
-                            start_date=timezone.now(),
-                            end_date=timezone.now() + timezone.timedelta(days=plan.days_count),
-                            gym_id=payment_data.pop("gym_id")
-                        )
-                        Payment.objects.create(
-                            user=subscription.user, subscription=subscription,
-                            **payment_data
-                        )
+        try:
+            with transaction.atomic():
+                if payment_status == "Captured":
+                    plan_id = payment_data.pop("plan_id")
+                    plan = Plan.objects.get(id=plan_id)
+                    Subscription.objects.filter(user=subscription.user).update(
+                        is_active=True,
+                        plan_id=plan_id,
+                        start_date=timezone.now(),
+                        end_date=timezone.now() + timezone.timedelta(days=plan.days_count),
+                        gym_id=payment_data.pop("gym_id")
+                    )
+                    Payment.objects.create(
+                        user=subscription.user, subscription=subscription,
+                        **payment_data
+                    )
 
-            except Exception as e:
-                return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            return Response({"message": "Webhook received successfully"}, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "Webhook received successfully"}, status=status.HTTP_200_OK)
