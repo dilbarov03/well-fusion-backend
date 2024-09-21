@@ -40,3 +40,32 @@ class Gym(BaseModel):
         if not self.promo_code:
             self.promo_code = self.generate_promo_code()
         super().save(*args, **kwargs)
+
+
+class Caterer(BaseModel):
+    name = models.CharField(max_length=255)
+    location = models.CharField(max_length=255)
+    working_hours = models.CharField(max_length=255)
+    phone = models.CharField(max_length=15, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Caterer"
+        verbose_name_plural = "Caterers"
+
+
+class CatererMenu(BaseModel):
+    caterer = models.ForeignKey(Caterer, on_delete=models.CASCADE, related_name="menus")
+    name = models.CharField(max_length=255)
+    ingredients = models.TextField()
+    image = models.ImageField(upload_to="caterer_menus")
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Caterer Menu"
+        verbose_name_plural = "Caterer Menus"

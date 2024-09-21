@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.utils import timezone
 from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.subscription.models import Plan, Subscription, Payment
@@ -11,14 +12,17 @@ from apps.subscription.utils import generate_paylink, get_payment_data
 
 class PlanListAPIView(generics.ListAPIView):
     """List all plans."""
-
     queryset = Plan.objects.all()
     serializer_class = PlanSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = None
 
 
 class CheckoutAPIView(generics.GenericAPIView):
     """Create checkout session to pay for a plan. You can send promo code to get discount."""
     serializer_class = CheckoutSerializer
+    permission_classes = (IsAuthenticated,)
+
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
