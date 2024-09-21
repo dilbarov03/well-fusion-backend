@@ -44,14 +44,16 @@ def generate_paylink(subscription, plan, promo_code=None):
                 {
                     "key": "plan_id",
                     "value": str(plan.id),
-                },
-                {
-                    "key": "gym_id",
-                    "value": str(gym.id) if gym else None,
                 }
             ]
         }
     }
+    if gym:
+        request_data["metadata"]["extraAttributes"].append({
+            "key": "gym_id",
+            "value": str(gym.id)
+        })
+
 
     response = requests.put(
         "https://payze.io/v2/api/payment",
