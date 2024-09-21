@@ -7,7 +7,7 @@ class SubscriptionSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     start_date = serializers.DateTimeField()
     end_date = serializers.DateTimeField()
-    is_active = serializers.BooleanField()
+    is_active = serializers.BooleanField(read_only=True)
     plan = serializers.SerializerMethodField()
 
     def get_plan(self, instance):

@@ -20,5 +20,4 @@ def user_post_save(sender, instance, created, **kwargs):
             plan=plan,
             start_date=timezone.now(),
             end_date=timezone.now() + timezone.timedelta(days=plan.days_count),
-            is_active=True
         )
