@@ -55,7 +55,6 @@ class PayzeWebhookAPIView(generics.GenericAPIView):
                     plan_id = payment_data.pop("plan_id")
                     plan = Plan.objects.get(id=plan_id)
                     Subscription.objects.filter(user=subscription.user).update(
-                        is_active=True,
                         plan_id=plan_id,
                         start_date=timezone.now(),
                         end_date=timezone.now() + timezone.timedelta(days=plan.days_count),
@@ -67,6 +66,7 @@ class PayzeWebhookAPIView(generics.GenericAPIView):
                     )
 
         except Exception as e:
+            print(e)
             return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response({"message": "Webhook received successfully"}, status=status.HTTP_200_OK)
