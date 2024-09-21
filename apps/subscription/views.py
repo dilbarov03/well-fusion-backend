@@ -1,3 +1,11 @@
-from django.shortcuts import render
+from rest_framework import generics
 
-# Create your views here.
+from apps.subscription.models import Plan
+from apps.subscription.serializers import PlanSerializer
+
+
+class PlanListAPIView(generics.ListAPIView):
+    """List all plans."""
+
+    queryset = Plan.objects.all()
+    serializer_class = PlanSerializer
