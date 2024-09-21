@@ -21,7 +21,8 @@ class Gym(BaseModel):
     def generate_promo_code(self):
         """Generate a promo code based on the gym's name."""
         # Use the first 3 characters of the gym's name, convert to uppercase
-        base_code = self.name[:3].upper()
+        base_code = self.name.strip().upper()
+
 
         # Generate a random string of 5 alphanumeric characters
         characters = string.ascii_uppercase + string.digits

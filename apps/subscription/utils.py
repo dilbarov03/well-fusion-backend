@@ -1,9 +1,9 @@
 import os
 import requests
 
-def generate_paylink(subscription):
+def generate_paylink(subscription, promo_code=None):
     payment_amount = float(subscription.plan.price)
-    if subscription.gym:
+    if promo_code:
         # give 10% discount
         payment_amount = payment_amount * 0.9
 
@@ -24,7 +24,7 @@ def generate_paylink(subscription):
         },
         "metadata": {
             "Order": {
-                "OrderId": subscription.id,
+                "OrderId": str(subscription.id),
                 "OrderItems": None,
                 "BillingAddress": None
             },

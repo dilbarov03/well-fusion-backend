@@ -1,7 +1,9 @@
 from rest_framework import generics
+from rest_framework.response import Response
 
 from apps.subscription.models import Plan
-from apps.subscription.serializers import PlanSerializer
+from apps.subscription.serializers import PlanSerializer, PromoCodeSerializer
+from apps.subscription.utils import generate_paylink
 
 
 class PlanListAPIView(generics.ListAPIView):
@@ -12,7 +14,12 @@ class PlanListAPIView(generics.ListAPIView):
 
 
 class CheckoutAPIView(generics.GenericAPIView):
-    """Checkout plan."""
+    """Create checkout session to pay for a plan. You can send promo code to get discount."""
+    serializer_class = PromoCodeSerializer
 
     def post(self, request):
-        pass
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        promo_code = serializer.validated_data.get("promo_code")
+        payment_link = generate_paylink(subscription=request.user.subscription, promo_code=promo_code)
+        return Response(payment_link)
