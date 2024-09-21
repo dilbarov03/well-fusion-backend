@@ -3,19 +3,35 @@ from rest_framework import serializers
 from apps.users.models import User
 
 
+class SubscriptionSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    start_date = serializers.DateTimeField()
+    end_date = serializers.DateTimeField()
+    is_active = serializers.BooleanField()
+    plan = serializers.SerializerMethodField()
+
+    def get_plan(self, instance):
+        return instance.plan.name
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            "id", "first_name", "last_name", "email", "password", "subscription_from", "subscription_to",
-            "is_pro_user"
+            "id", "first_name", "last_name", "email", "password", "subscription"
         )
         extra_kwargs = {
             "password": {"write_only": True},
-            "is_pro_user": {"read_only": True},
-            "subscription_from": {"read_only": True},
-            "subscription_to": {"read_only": True}
+            "subscription": {"read_only": True}
         }
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        if hasattr(instance, "subscription"):
+            response["subscription"] = SubscriptionSerializer(instance.subscription).data
+        else:
+            response["subscription"] = None
+        return response
 
     def create(self, validated_data):
         password = validated_data.pop("password")

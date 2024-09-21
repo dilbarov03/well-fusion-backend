@@ -9,3 +9,10 @@ class PlanListAPIView(generics.ListAPIView):
 
     queryset = Plan.objects.all()
     serializer_class = PlanSerializer
+
+
+class CheckoutAPIView(generics.GenericAPIView):
+    """Checkout plan."""
+
+    def post(self, request):
+        pass
