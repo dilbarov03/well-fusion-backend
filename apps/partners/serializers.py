@@ -16,6 +16,12 @@ class CatererMenuSerializer(serializers.ModelSerializer):
 
 
 class CatererSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Caterer
+        fields = ("id", "name", "location", "working_hours", "phone")
+
+
+class CatererDetailSerializer(serializers.ModelSerializer):
     menus = CatererMenuSerializer(many=True)
 
     class Meta:
