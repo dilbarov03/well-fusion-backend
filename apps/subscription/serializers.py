@@ -10,8 +10,9 @@ class PlanSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "price", "days_count")
 
 
-class PromoCodeSerializer(serializers.Serializer):
+class CheckoutSerializer(serializers.Serializer):
     promo_code = serializers.CharField(required=False, allow_null=True)
+    plan = serializers.PrimaryKeyRelatedField(queryset=Plan.objects.all())
 
     def validate_promo_code(self, value):
         if value and not Gym.objects.filter(promo_code=value).exists():
